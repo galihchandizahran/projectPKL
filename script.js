@@ -1,15 +1,14 @@
-/* =====================================================
-   MyCalistung -- Interactive Script
-   Features: navbar scroll, reveal, FAQ, counter,
-             confetti, sparkle on click, tilt cards,
-             floating bubble colors, mock card pulse
-===================================================== */
+// =========================================================
+// MyCalistung -- Script v2
+// =========================================================
 
 // ===== NAVBAR SCROLL =====
 const navbar = document.getElementById('navbar');
-window.addEventListener('scroll', () => {
-  navbar.classList.toggle('scrolled', window.scrollY > 10);
-}, { passive: true });
+if (navbar) {
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 10);
+  }, { passive: true });
+}
 
 // ===== REVEAL ON SCROLL =====
 document.documentElement.classList.add('js-reveal-active');
@@ -51,7 +50,7 @@ const counterObserver = new IntersectionObserver((entries) => {
     if (entry.isIntersecting) {
       const el = entry.target;
       const target = parseInt(el.dataset.target, 10);
-      const suffix = target >= 1000 ? '+' : target === 98 ? '%' : '+';
+      const suffix = target === 98 ? '%' : '+';
       const duration = 1800;
       const step = Math.ceil(duration / target);
       let current = 0;
@@ -70,7 +69,7 @@ const counterObserver = new IntersectionObserver((entries) => {
 counters.forEach(c => counterObserver.observe(c));
 
 // ===== CONFETTI BURST =====
-const CONFETTI_COLORS = ['#7C3AED','#EC4899','#FBBF24','#10B981','#3B82F6','#F97316','#EF4444','#A855F7'];
+const CONFETTI_COLORS = ['#FF6B5B', '#FFC857', '#3FA982', '#4D9DD6', '#2B2250'];
 
 function launchConfetti(x, y) {
   for (let i = 0; i < 36; i++) {
@@ -100,7 +99,7 @@ document.querySelectorAll('.confetti-btn').forEach(btn => {
 });
 
 // ===== SPARKLE ON CLICK (anywhere) =====
-const SPARKLE_COLORS = ['#7C3AED','#EC4899','#FBBF24','#10B981','#3B82F6','#F97316'];
+const SPARKLE_COLORS = ['#FF6B5B', '#FFC857', '#3FA982', '#4D9DD6'];
 document.addEventListener('click', (e) => {
   for (let i = 0; i < 6; i++) {
     const dot = document.createElement('div');
@@ -118,7 +117,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// ===== 3D TILT ON MOCK CARDS =====
+// ===== 3D TILT ON CARDS =====
 document.querySelectorAll('[data-tilt]').forEach(card => {
   card.addEventListener('mousemove', (e) => {
     const rect = card.getBoundingClientRect();
@@ -126,20 +125,13 @@ document.querySelectorAll('[data-tilt]').forEach(card => {
     const y = e.clientY - rect.top;
     const cx = rect.width / 2;
     const cy = rect.height / 2;
-    const rotateX = ((y - cy) / cy) * -10;
-    const rotateY = ((x - cx) / cx) * 10;
-    card.style.transform = 'perspective(600px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) scale(1.06)';
+    const rotateX = ((y - cy) / cy) * -8;
+    const rotateY = ((x - cx) / cx) * 8;
+    card.style.transform = 'perspective(600px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) scale(1.04)';
   });
   card.addEventListener('mouseleave', () => {
     card.style.transform = '';
   });
-});
-
-// ===== ANIMATED GRADIENT BUBBLE COLORS =====
-const bubbles = document.querySelectorAll('.bubble');
-const bubbleColors = ['#7C3AED','#EC4899','#FBBF24','#10B981','#3B82F6','#F97316'];
-bubbles.forEach((b, i) => {
-  b.style.background = bubbleColors[i % bubbleColors.length];
 });
 
 // ===== HERO MOCK CARD CLICK BOUNCE =====
@@ -154,7 +146,7 @@ document.querySelectorAll('.mock-card').forEach(card => {
 document.querySelectorAll('.icon-row span').forEach(icon => {
   icon.addEventListener('mouseenter', () => {
     const dir = Math.random() > 0.5 ? 1 : -1;
-    icon.style.transform = 'scale(1.3) rotate(' + (dir * 20) + 'deg)';
+    icon.style.transform = 'scale(1.25) rotate(' + (dir * 18) + 'deg)';
   });
   icon.addEventListener('mouseleave', () => {
     icon.style.transform = '';
@@ -164,7 +156,9 @@ document.querySelectorAll('.icon-row span').forEach(icon => {
 // ===== SMOOTH SCROLL =====
 document.querySelectorAll('a[href^="#"]').forEach(link => {
   link.addEventListener('click', (e) => {
-    const target = document.querySelector(link.getAttribute('href'));
+    const href = link.getAttribute('href');
+    if (href === '#') return;
+    const target = document.querySelector(href);
     if (target) {
       e.preventDefault();
       target.scrollIntoView({ behavior: 'smooth', block: 'start' });

@@ -1,6 +1,91 @@
 // =========================================================
-// MyCalistung -- Script v2
+// MyCalistung -- Script v3 (Mobile Optimized)
 // =========================================================
+
+// ===== AUTO COLORIZE LOGO =====
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.brand-logo').forEach(logo => {
+    if (logo.querySelector('span')) return;
+    const text = logo.textContent.trim();
+    logo.textContent = '';
+    text.split('').forEach((char, i) => {
+      const span = document.createElement('span');
+      span.textContent = char;
+      span.className = 'l' + i;
+      logo.appendChild(span);
+    });
+  });
+});
+
+// ===== BROWSER BACK NAVIGATION =====
+// Track navigation history for mobile back button
+let navigationHistory = [];
+let currentSection = 'home';
+
+// Get all sections
+const sections = ['home', 'masalah', 'solusi', 'fitur', 'testimoni', 'harga', 'faq'];
+
+// Handle smooth scroll with history
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+  link.addEventListener('click', (e) => {
+    const href = link.getAttribute('href');
+    if (href === '#') return;
+    
+    const target = document.querySelector(href);
+    if (target) {
+      e.preventDefault();
+      const targetId = href.substring(1);
+      
+      // Add to history if different from current
+      if (targetId !== currentSection) {
+        navigationHistory.push(currentSection);
+        currentSection = targetId;
+      }
+      
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+
+// Handle browser back button
+window.addEventListener('popstate', (e) => {
+  if (navigationHistory.length > 0) {
+    const previousSection = navigationHistory.pop();
+    const target = document.getElementById(previousSection);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      currentSection = previousSection;
+    }
+  }
+});
+
+// Update URL hash on scroll (for back button support)
+let scrollTimeout;
+window.addEventListener('scroll', () => {
+  clearTimeout(scrollTimeout);
+  scrollTimeout = setTimeout(() => {
+    const scrollPosition = window.scrollY + 100;
+    
+    sections.forEach(sectionId => {
+      const section = document.getElementById(sectionId);
+      if (section) {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.offsetHeight;
+        
+        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+          if (currentSection !== sectionId) {
+            navigationHistory.push(currentSection);
+            currentSection = sectionId;
+            // Update URL without reloading
+            if (history.replaceState) {
+              history.replaceState(null, null, `#${sectionId}`);
+            }
+          }
+        }
+      }
+    });
+  }, 100);
+}, { passive: true });
 
 // ===== NAVBAR SCROLL =====
 const navbar = document.getElementById('navbar');
@@ -8,6 +93,18 @@ if (navbar) {
   window.addEventListener('scroll', () => {
     navbar.classList.toggle('scrolled', window.scrollY > 10);
   }, { passive: true });
+}
+
+// ===== SCROLL TO TOP BUTTON =====
+const scrollTopBtn = document.getElementById('scrollTopBtn');
+if (scrollTopBtn) {
+  window.addEventListener('scroll', () => {
+    scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
+  }, { passive: true });
+  
+  scrollTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
 }
 
 // ===== REVEAL ON SCROLL =====
@@ -22,7 +119,6 @@ const revealObserver = new IntersectionObserver((entries) => {
     }
   });
 }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-
 revealEls.forEach((el) => {
   const parent = el.parentElement;
   const siblings = parent ? [...parent.querySelectorAll('.reveal')] : [];
@@ -70,7 +166,6 @@ counters.forEach(c => counterObserver.observe(c));
 
 // ===== CONFETTI BURST =====
 const CONFETTI_COLORS = ['#FF6B5B', '#FFC857', '#3FA982', '#4D9DD6', '#2B2250'];
-
 function launchConfetti(x, y) {
   for (let i = 0; i < 36; i++) {
     const piece = document.createElement('div');
@@ -90,7 +185,6 @@ function launchConfetti(x, y) {
     piece.addEventListener('animationend', () => piece.remove());
   }
 }
-
 document.querySelectorAll('.confetti-btn').forEach(btn => {
   btn.addEventListener('click', (e) => {
     const rect = btn.getBoundingClientRect();
@@ -98,7 +192,7 @@ document.querySelectorAll('.confetti-btn').forEach(btn => {
   });
 });
 
-// ===== SPARKLE ON CLICK (anywhere) =====
+// ===== SPARKLE ON CLICK =====
 const SPARKLE_COLORS = ['#FF6B5B', '#FFC857', '#3FA982', '#4D9DD6'];
 document.addEventListener('click', (e) => {
   for (let i = 0; i < 6; i++) {
@@ -117,22 +211,24 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// ===== 3D TILT ON CARDS =====
-document.querySelectorAll('[data-tilt]').forEach(card => {
-  card.addEventListener('mousemove', (e) => {
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const cx = rect.width / 2;
-    const cy = rect.height / 2;
-    const rotateX = ((y - cy) / cy) * -8;
-    const rotateY = ((x - cx) / cx) * 8;
-    card.style.transform = 'perspective(600px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) scale(1.04)';
+// ===== 3D TILT ON CARDS (Desktop only) =====
+if (window.matchMedia('(hover: hover)').matches) {
+  document.querySelectorAll('[data-tilt]').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
+      const rotateX = ((y - cy) / cy) * -8;
+      const rotateY = ((x - cx) / cx) * 8;
+      card.style.transform = 'perspective(600px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) scale(1.04)';
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
   });
-  card.addEventListener('mouseleave', () => {
-    card.style.transform = '';
-  });
-});
+}
 
 // ===== HERO MOCK CARD CLICK BOUNCE =====
 document.querySelectorAll('.mock-card').forEach(card => {
@@ -153,15 +249,107 @@ document.querySelectorAll('.icon-row span').forEach(icon => {
   });
 });
 
-// ===== SMOOTH SCROLL =====
-document.querySelectorAll('a[href^="#"]').forEach(link => {
-  link.addEventListener('click', (e) => {
-    const href = link.getAttribute('href');
-    if (href === '#') return;
-    const target = document.querySelector(href);
-    if (target) {
-      e.preventDefault();
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+// ===== TESTIMONIALS CAROUSEL (Mobile Optimized) =====
+(() => {
+  const track = document.getElementById('testiTrack');
+  const dotsWrap = document.getElementById('testiDots');
+  if (!track || !dotsWrap) return;
+
+  const slides = Array.from(track.children);
+  let index = 0;
+  let autoplayTimer = null;
+  let isDragging = false;
+  let startX = 0;
+  let currentTranslate = 0;
+  let prevTranslate = 0;
+
+  // Build dots
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'testi-dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', 'Lihat testimoni ' + (i + 1));
+    dot.addEventListener('click', () => goTo(i));
+    dotsWrap.appendChild(dot);
+  });
+
+  const dots = Array.from(dotsWrap.children);
+
+  function update() {
+    currentTranslate = -index * 100;
+    prevTranslate = currentTranslate;
+    track.style.transform = `translateX(${currentTranslate}%)`;
+    dots.forEach((d, i) => d.classList.toggle('active', i === index));
+  }
+
+  function goTo(i) {
+    index = (i + slides.length) % slides.length;
+    update();
+    restartAutoplay();
+  }
+
+  function next() {
+    goTo(index + 1);
+  }
+
+  function prev() {
+    goTo(index - 1);
+  }
+
+  function restartAutoplay() {
+    if (autoplayTimer) clearInterval(autoplayTimer);
+    autoplayTimer = setInterval(next, 2000);
+  }
+
+  // Pause autoplay on hover (desktop)
+  track.addEventListener('mouseenter', () => {
+    if (autoplayTimer) clearInterval(autoplayTimer);
+  });
+
+  track.addEventListener('mouseleave', () => {
+    restartAutoplay();
+  });
+
+  // Touch/Drag support for mobile
+  track.addEventListener('pointerdown', (e) => {
+    isDragging = true;
+    startX = e.clientX;
+    track.style.transition = 'none';
+    if (autoplayTimer) clearInterval(autoplayTimer);
+  });
+
+  track.addEventListener('pointermove', (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const diff = e.clientX - startX;
+    const containerWidth = track.parentElement.offsetWidth;
+    const percentDiff = (diff / containerWidth) * 100;
+    track.style.transform = `translateX(${currentTranslate + percentDiff}%)`;
+  });
+
+  track.addEventListener('pointerup', (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    track.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1)';
+    const diff = e.clientX - startX;
+    if (Math.abs(diff) > 40) {
+      diff < 0 ? next() : prev();
+    } else {
+      update();
+    }
+    restartAutoplay();
+  });
+
+  track.addEventListener('pointerleave', () => {
+    if (isDragging) {
+      isDragging = false;
+      track.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1)';
+      update();
+      restartAutoplay();
     }
   });
-});
+
+  // Initialize
+  update();
+  restartAutoplay();
+})();
